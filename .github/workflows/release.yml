@@ -35,7 +35,7 @@ jobs:
       - name: Зависимости X11 (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libx11-dev libxtst-dev libxi-dev
-      - name: Сборка (macOS: обе архитектуры)
+      - name: "Сборка (macOS — обе архитектуры)"
         if: runner.os == 'macOS'
         run: |
           rustup target add x86_64-apple-darwin
