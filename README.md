@@ -140,6 +140,9 @@ AUTOTYPER_GUI_TEST=1 cargo test --test gui_macos -- --test-threads=1
 
 ### Linux
 
+* **Сборка из исходников**: rdev (перехват клавиатуры) при сборке требует
+  заголовки X11 — `sudo apt install libx11-dev libxtst-dev libxi-dev`
+  (Debian/Ubuntu; для готовых бинарников из Releases ничего не нужно).
 * **X11 обязателен**: в Wayland-сессии синтез ввода не работает —
   выберите «Ubuntu на Xorg» и т.п. на экране входа (проверяется при старте:
   autotyper предупредит, если видит `WAYLAND_DISPLAY`).

@@ -30,6 +30,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      # rdev (перехват клавиатуры) на Linux зависит от крейта x11,
+      # которому при сборке нужны заголовки X11.
+      - name: Зависимости X11 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxtst-dev libxi-dev
       - name: Сборка
         run: cargo build --release
       # В архив кладём всё, чтобы после распаковки работало без Rust:
