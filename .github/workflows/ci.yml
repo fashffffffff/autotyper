@@ -1,0 +1,24 @@
+# CI: сборка и тесты на всех трёх платформах при каждом пуше.
+# Графические тесты macOS включаются только с AUTOTYPER_GUI_TEST=1 —
+# в CI они молча пропускаются (нужен реальный GUI и Accessibility).
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Зависимости X11 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxtst-dev libxi-dev
+      - name: Тесты
+        run: cargo test --release

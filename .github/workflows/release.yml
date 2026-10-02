@@ -1,0 +1,74 @@
+# Release: сборка готовых бинарников под все платформы и публикация
+# на странице Releases. Запуск — пушем тега (git tag v0.1.0 && git push
+# --tags) либо вручную (Actions → release → Run workflow); без тега
+# артефакты остаются в Actions, релиз не создаётся.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest # Apple Silicon
+            name: macos-arm64
+          - os: macos-13 # Intel
+            name: macos-intel
+          - os: ubuntu-latest
+            name: linux-x86_64
+          - os: windows-latest
+            name: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Зависимости X11 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxtst-dev libxi-dev
+      - name: Сборка
+        run: cargo build --release
+      # В архив кладём всё, чтобы после распаковки работало без Rust:
+      # бинарник, лаунчер двойного клика, README, LICENSE, пример конфига.
+      - name: Упаковка (macOS/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          DIR="autotyper-${{ matrix.name }}"
+          mkdir "$DIR"
+          cp target/release/autotyper "$DIR/"
+          cp README.md LICENSE "$DIR/"
+          cp examples/config.example.json "$DIR/CONFIG.example.json"
+          cp launchers/run-macos.command "$DIR/" || true
+          cp launchers/run-linux.sh "$DIR/" || true
+          cp launchers/autotyper.desktop "$DIR/" || true
+          chmod +x "$DIR/autotyper" "$DIR"/*.command "$DIR"/*.sh 2>/dev/null || true
+          tar -czf "autotyper-${{ matrix.name }}.tar.gz" "$DIR"
+      - name: Упаковка (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir autotyper-windows-x86_64
+          copy target\release\autotyper.exe autotyper-windows-x86_64\
+          copy README.md autotyper-windows-x86_64\
+          copy LICENSE autotyper-windows-x86_64\
+          copy examples\config.example.json autotyper-windows-x86_64\CONFIG.example.json
+          copy launchers\run-windows.bat autotyper-windows-x86_64\
+          Compress-Archive -Path autotyper-windows-x86_64 -DestinationPath autotyper-windows-x86_64.zip
+        shell: pwsh
+      - name: Артефакт в Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: autotyper-${{ matrix.name }}
+          path: autotyper-${{ matrix.name }}.*
+      - name: Публикация в Release (только для тегов)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: autotyper-${{ matrix.name }}.*
+          generate_release_notes: true

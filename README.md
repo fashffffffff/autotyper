@@ -8,29 +8,51 @@
 
 ## Быстрый старт
 
+### Вариант 1 — готовый бинарник (Rust не нужен)
+
+Скачай архив со [страницы Releases](https://github.com/fashffffffff/autotyper/releases/latest)
+и распакуй — внутри уже всё для запуска (бинарник, лаунчер, README,
+пример конфига):
+
+| Твоя система | Файл |
+|---|---|
+| macOS (Apple Silicon, M1–M4) | `autotyper-macos-arm64.tar.gz` |
+| macOS (Intel) | `autotyper-macos-intel.tar.gz` |
+| Windows | `autotyper-windows-x86_64.zip` |
+| Linux | `autotyper-linux-x86_64.tar.gz` |
+
 ```bash
-# 1. скачать
-git clone https://github.com/fashffffffff/autotyper.git   # или Code → Download ZIP
-cd autotyper
+# macOS / Linux:
+tar -xzf autotyper-<твой-файл>.tar.gz && cd autotyper-*
+xattr -d com.apple.quarantine autotyper   # только macOS: снять карантин
+                                           # Gatekeeper (сборка без подписи)
+./run-macos.command   # или run-linux.sh; на macOS — двойной клик тоже работает
 
-# 2. собрать (нужен Rust: https://rustup.rs)
-cargo build --release
-
-# 3. запустить
-cargo run --release          # или ./target/release/autotyper
-# без терминала: двойной клик по launchers/run-macos.command
-#                (run-windows.bat / run-linux.sh — на других ОС)
+# Windows: распакуй zip → двойной клик по run-windows.bat
+# (SmartScreen предупредит о неизвестном издателе: «Подробнее → Выполнить в любом случае»)
 ```
 
-При первом запуске рядом создастся `CONFIG.json` — с комментарием у каждого
-параметра. На macOS выдайте терминалу разрешение
-**System Settings → Privacy & Security → Accessibility** (без него перехват
-хоткеев и синтез ввода молча не работают).
+На macOS один раз выдай терминалу разрешение
+**System Settings → Privacy & Security → Accessibility** — без него перехват
+хоткеев и синтез ввода молча не работают. На Linux могут понадобиться права
+группы `input` (см. [раздел про Linux](#linux)).
 
-Схема использования: скопировал текст → перешёл в целевое окно → **Ctrl+V**
-(macOS) / **Alt+V** (Win/Linux) → текст печатается посимвольно. Во время
-печати: **F8** — пауза/продолжение, **Esc** — полный сброс. Все клавиши
-меняются в `CONFIG.json`.
+### Вариант 2 — собрать из исходников
+
+```bash
+git clone https://github.com/fashffffffff/autotyper.git   # или Code → Download ZIP
+cd autotyper
+cargo build --release        # нужен Rust: https://rustup.rs
+cargo run --release          # или ./target/release/autotyper
+```
+
+### Дальше — одинаково для обоих вариантов
+
+При первом запуске рядом с бинарником создастся `CONFIG.json` — с
+комментарием у каждого параметра. Схема использования: скопировал текст →
+перешёл в целевое окно → **Ctrl+V** (macOS) / **Alt+V** (Win/Linux) → текст
+печатается посимвольно. Во время печати: **F8** — пауза/продолжение,
+**Esc** — полный сброс. Все клавиши меняются в `CONFIG.json`.
 
 Подробности — ниже: [управление](#управление-во-время-печати),
 [права для ОС](#права-и-особенности-платформ),
