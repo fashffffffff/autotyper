@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest # Apple Silicon
-            name: macos-arm64
-          - os: macos-13 # Intel
-            name: macos-intel
+          # macOS: обе архитектуры собираются на arm64-раннере кросс-таргетом
+          # (отдельные Intel-раннеры GitHub выведены из эксплуатации).
+          - os: macos-latest
+            name: macos
           - os: ubuntu-latest
             name: linux-x86_64
           - os: windows-latest
@@ -35,22 +35,42 @@ jobs:
       - name: Зависимости X11 (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libx11-dev libxtst-dev libxi-dev
+      - name: Сборка (macOS: обе архитектуры)
+        if: runner.os == 'macOS'
+        run: |
+          rustup target add x86_64-apple-darwin
+          cargo build --release                        # arm64 (нативно)
+          cargo build --release --target x86_64-apple-darwin
       - name: Сборка
+        if: runner.os != 'macOS'
         run: cargo build --release
       # В архив кладём всё, чтобы после распаковки работало без Rust:
       # бинарник, лаунчер двойного клика, README, LICENSE, пример конфига.
-      - name: Упаковка (macOS/Linux)
-        if: runner.os != 'Windows'
+      - name: Упаковка (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          pack() { # $1 — суффикс архива, $2 — путь к бинарнику
+            DIR="autotyper-$1"
+            mkdir "$DIR"
+            cp "$2" "$DIR/autotyper"
+            cp README.md LICENSE "$DIR/"
+            cp examples/config.example.json "$DIR/CONFIG.example.json"
+            cp launchers/run-macos.command "$DIR/"
+            chmod +x "$DIR/autotyper" "$DIR"/*.command
+            tar -czf "autotyper-$1.tar.gz" "$DIR"
+          }
+          pack macos-arm64 target/release/autotyper
+          pack macos-intel target/x86_64-apple-darwin/release/autotyper
+      - name: Упаковка (Linux)
+        if: runner.os == 'Linux'
         run: |
           DIR="autotyper-${{ matrix.name }}"
           mkdir "$DIR"
           cp target/release/autotyper "$DIR/"
           cp README.md LICENSE "$DIR/"
           cp examples/config.example.json "$DIR/CONFIG.example.json"
-          cp launchers/run-macos.command "$DIR/" || true
-          cp launchers/run-linux.sh "$DIR/" || true
-          cp launchers/autotyper.desktop "$DIR/" || true
-          chmod +x "$DIR/autotyper" "$DIR"/*.command "$DIR"/*.sh 2>/dev/null || true
+          cp launchers/run-linux.sh launchers/autotyper.desktop "$DIR/"
+          chmod +x "$DIR/autotyper" "$DIR"/*.sh
           tar -czf "autotyper-${{ matrix.name }}.tar.gz" "$DIR"
       - name: Упаковка (Windows)
         if: runner.os == 'Windows'
@@ -67,10 +87,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: autotyper-${{ matrix.name }}
-          path: autotyper-${{ matrix.name }}.*
+          path: |
+            autotyper-*.tar.gz
+            autotyper-*.zip
       - name: Публикация в Release (только для тегов)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: autotyper-${{ matrix.name }}.*
+          files: |
+            autotyper-*.tar.gz
+            autotyper-*.zip
           generate_release_notes: true
