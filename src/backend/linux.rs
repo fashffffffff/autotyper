@@ -55,7 +55,7 @@ unsafe fn read_frontmost_pid(display: *mut x11::xlib::Display) -> Option<i32> {
         &mut bytes_after,
         &mut data,
     );
-    if status != x11::xlib::Success || data.is_null() || n_items == 0 {
+    if status != c_int::from(x11::xlib::Success) || data.is_null() || n_items == 0 {
         return None;
     }
     // 32-битные свойства X возвращаются массивом c_long — берём первый элемент.
@@ -85,7 +85,7 @@ unsafe fn read_frontmost_pid(display: *mut x11::xlib::Display) -> Option<i32> {
         &mut bytes_after,
         &mut data,
     );
-    if status != x11::xlib::Success || data.is_null() || n_items == 0 {
+    if status != c_int::from(x11::xlib::Success) || data.is_null() || n_items == 0 {
         return None;
     }
     let pid = *(data as *const c_long) as i32;
