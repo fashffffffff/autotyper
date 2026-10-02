@@ -11,7 +11,9 @@ rust-version = "1.70"
 rdev = "0.5"
 # Эмуляция ввода: macOS — CGEventKeyboardSetUnicodeString,
 # Windows — SendInput + KEYEVENTF_UNICODE, Linux — X11/XTest.
-enigo = "0.2"
+# На Linux включаем бэкенд x11rb (чистый Rust): дефолтный xdo линкует
+# системную libxdo, которой нет у большинства пользователей.
+enigo = { version = "0.2", default-features = false, features = ["x11rb"] }
 # Чтение системного буфера обмена.
 arboard = "3"
 # Конфигурация.
@@ -28,12 +30,10 @@ rand_distr = "0.4"
 # Домашний каталог (без хардкода путей).
 dirs = "5"
 
-# Xlib для frontmost_pid (_NET_ACTIVE_WINDOW) — только Linux.
-# ВАЖНО: у крейта x11 нет фич по умолчанию — без features = ["xlib"]
-# модуль x11::xlib не существует и код не компилируется. С одной фичей
-# xlib линкуется только libX11 (pkg-config), без Xtst/Xi и прочих.
+# x11rb для frontmost_pid (_NET_ACTIVE_WINDOW / _NET_WM_PID) — только Linux.
+# Чистый Rust, системных библиотек не требует.
 [target.'cfg(target_os = "linux")'.dependencies]
-x11 = { version = "2", default-features = false, features = ["xlib"] }
+x11rb = "0.13"
 
 [profile.release]
 opt-level = 3
