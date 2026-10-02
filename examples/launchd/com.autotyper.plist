@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- launchd: ~/Library/LaunchAgents/com.autotyper.plist
+     Установка:
+       sudo cp target/release/autotyper /usr/local/bin/autotyper
+       cp examples/launchd/com.autotyper.plist ~/Library/LaunchAgents/
+       launchctl load ~/Library/LaunchAgents/com.autotyper.plist
+     Проверка: launchctl list | grep autotyper
+     ВАЖНО: launchd запускает бинарник напрямую, поэтому разрешение
+     Accessibility должно быть выдано именно /usr/local/bin/autotyper
+     (System Settings → Privacy & Security → Accessibility → «+»). -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.autotyper</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/autotyper</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>ProcessType</key>
+    <string>Interactive</string>
+
+    <!-- stderr дублируем в файл (основной лог — ~/.config/autotyper/autotyper.log) -->
+    <key>StandardErrorPath</key>
+    <string>/tmp/autotyper.stderr.log</string>
+    <key>StandardOutPath</key>
+    <string>/tmp/autotyper.stdout.log</string>
+</dict>
+</plist>

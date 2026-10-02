@@ -1,0 +1,15 @@
+[Desktop Entry]
+# autotyper — ярлык для двойного клика в Linux (GNOME/KDE/...).
+# Установка:
+#   1) поправьте Exec ниже — полный путь к binary target/release/autotyper
+#      (или к копии в ~/.local/bin/autotyper);
+#   2) скопируйте файл в ~/.local/share/applications/autotyper.desktop;
+#   3) chmod +x ~/.local/share/applications/autotyper.desktop
+#      и в GNOME выберите «Allow Launching» в контекстном меню файла.
+Type=Application
+Name=Autotyper
+Comment=Печать из буфера обмена по глобальному хоткею (Alt+V)
+Exec=/home/USER/projects/autotyper/target/release/autotyper
+Path=/home/USER/projects/autotyper
+Terminal=true
+Categories=Utility;

@@ -1,0 +1,23 @@
+# systemd (user unit): ~/.config/systemd/user/autotyper.service
+# Установка:
+#   cp target/release/autotyper ~/.local/bin/autotyper
+#   cp examples/systemd/autotyper.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now autotyper
+# Логи службы: journalctl --user -u autotyper -f
+[Unit]
+Description=Autotyper — печать из буфера обмена по глобальному хоткею
+# Ждём графическую сессию (для user-юнита с X11 важно наличие DISPLAY)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/autotyper
+Restart=on-failure
+RestartSec=3
+# Плавное завершение по stop: SIGTERM убивает процесс слушателя rdev
+KillSignal=SIGTERM
+TimeoutStopSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,38 @@
+[package]
+name = "autotyper"
+version = "0.1.0"
+edition = "2021"
+description = "Печатает текст из буфера обмена в активное окно по глобальному хоткею, имитируя живой ручной ввод"
+license = "MIT"
+rust-version = "1.70"
+
+[dependencies]
+# Перехват глобального хоткея (только ввод событий, НЕ эмуляция).
+rdev = "0.5"
+# Эмуляция ввода: macOS — CGEventKeyboardSetUnicodeString,
+# Windows — SendInput + KEYEVENTF_UNICODE, Linux — X11/XTest.
+enigo = "0.2"
+# Чтение системного буфера обмена.
+arboard = "3"
+# Конфигурация.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Обработка ошибок.
+anyhow = "1"
+thiserror = "1"
+# Таймстемпы в логе.
+chrono = "0.4"
+# Случайная составляющая скорости печати (нормальное распределение).
+rand = "0.8"
+rand_distr = "0.4"
+# Домашний каталог (без хардкода путей).
+dirs = "5"
+
+# Xlib для frontmost_pid (_NET_ACTIVE_WINDOW) — только Linux
+# (x11 и так приходит транзитивно через enigo).
+[target.'cfg(target_os = "linux")'.dependencies]
+x11 = "2"
+
+[profile.release]
+opt-level = 3
+lto = true

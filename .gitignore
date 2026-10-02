@@ -1,0 +1,9 @@
+/target
+# Рабочий конфиг и лог живут в корне проекта (см. config::app_dir)
+/CONFIG.json
+/autotyper.log
+# Служебные каталоги локальных инструментов
+/.mimosa/
+/.v2c/
+/.video_agent/
+.DS_Store
