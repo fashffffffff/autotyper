@@ -28,10 +28,12 @@ rand_distr = "0.4"
 # Домашний каталог (без хардкода путей).
 dirs = "5"
 
-# Xlib для frontmost_pid (_NET_ACTIVE_WINDOW) — только Linux
-# (x11 и так приходит транзитивно через enigo).
+# Xlib для frontmost_pid (_NET_ACTIVE_WINDOW) — только Linux.
+# ВАЖНО: у крейта x11 нет фич по умолчанию — без features = ["xlib"]
+# модуль x11::xlib не существует и код не компилируется. С одной фичей
+# xlib линкуется только libX11 (pkg-config), без Xtst/Xi и прочих.
 [target.'cfg(target_os = "linux")'.dependencies]
-x11 = "2"
+x11 = { version = "2", default-features = false, features = ["xlib"] }
 
 [profile.release]
 opt-level = 3
